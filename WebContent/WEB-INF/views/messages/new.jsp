@@ -6,7 +6,7 @@
         <h2>メッセージ新規投稿</h2>
 
         <form method="POST"
-            action="${pageContext.request.contextPath }/ctrate">
+            action="${pageContext.request.contextPath }/create">
             <c:import url="_form.jsp"/>
         </form>
         <p>
