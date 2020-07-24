@@ -2,8 +2,10 @@ package controllers;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -11,7 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import models.Message;
+import models.validators.MessageValidators;
 import util.DButil;
+
 /**
  * Servlet implementation class UpdateServlet
  */
@@ -52,6 +56,19 @@ public class UpdateServlet extends HttpServlet {
             Timestamp currentTime = new Timestamp(System.currentTimeMillis());
             m.setUpdated_at(currentTime);
 
+            List<String> errors = MessageValidators.validate(m);
+            if(errors.size() > 0){
+                em.close();
+
+                request.setAttribute("_token", request.getSession().getId());
+                request.setAttribute("message", m);
+                request.setAttribute("errors", errors);
+
+                RequestDispatcher rd = request.getRequestDispatcher("/WEB-INF/views/messages/edit.jsp");
+                rd.forward(request, response);
+
+            }else{
+
             em.getTransaction().begin();
             em.getTransaction().commit();
             request.getSession().setAttribute("flush","更新が完了しました");
@@ -59,6 +76,7 @@ public class UpdateServlet extends HttpServlet {
             request.getSession().removeAttribute("message_id");
 
             response.sendRedirect(request.getContextPath()+"/index");
-    }
+            }
+            }
 
 }
